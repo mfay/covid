@@ -29,6 +29,12 @@
 						google.charts.setOnLoadCallback( drawChart );
 					});
 				}
+				function getDisplay() {
+					var el = document.getElementsByName('display');
+					for (var i=0;i<el.length;i++) {
+						if (el[i].checked) return el[i].value;
+					}
+				}
 				function drawChart() {
 					var rows = [];
 					var cu = document.getElementById('country').value;
@@ -36,12 +42,23 @@
 					var lastConfirmed = 0;
 					var lastDeaths = 0;
 					var lastRecovered = 0;
+					var display = getDisplay();
 					for (var i=0;i<data[cu].length;i++) {
 						const {date, confirmed, recovered, deaths} = data[cu][i];
 						var totalConfirmed = (daily) ? confirmed - lastConfirmed : confirmed;
 						var totalDeaths = (daily) ? deaths - lastDeaths : deaths;
 						var totalRecovered = (daily) ? recovered - lastRecovered : recovered;
-						rows.push([new Date(date), totalConfirmed, totalDeaths]);
+						switch (display) {
+							case 'both':
+								rows.push([new Date(date), totalConfirmed, totalDeaths]);
+								break;
+							case 'confirmed':
+								rows.push([new Date(date), totalConfirmed]);
+								break;
+							case 'deaths':
+								rows.push([new Date(date), totalDeaths]);
+								break;
+						}
 						lastConfirmed = confirmed;
 						lastDeaths = deaths;
 						lastRecovered = recovered;
@@ -54,8 +71,10 @@
 					var chart = new google.visualization.ColumnChart(document.getElementById('chart'));
 					var table = new google.visualization.DataTable();
 					table.addColumn('date', 'Date');
-					table.addColumn('number', 'Confirmed');
-					table.addColumn('number', 'Deaths');
+					if (display === 'both' || display == 'confirmed')
+						table.addColumn('number', 'Confirmed');
+					if (display === 'both' || display == 'deaths')
+						table.addColumn('number', 'Deaths');
 					// table.addColumn('number', 'Recovered');
 					table.addRows(rows);
 					chart.draw(table, options);
@@ -64,6 +83,10 @@
 					getData();
 					document.getElementById('country').addEventListener('change', drawChart);
 					document.getElementById('total').addEventListener('change', drawChart);
+					var d = document.getElementsByName('display');
+					for (var i=0;i<d.length;i++) {
+						d[i].addEventListener('change', drawChart);
+					}
 				});
 			})();
 		</script>
@@ -82,6 +105,20 @@
 								<option value="0">Show Cumulative Totals</option>
 								<option value="1">Show Daily Totals</option>
 							</select>
+						</div>
+						<div class="control">
+							<label for="display_both" class="radio">
+								<input id="display_both" type="radio" name="display" value="both" checked>
+								Confirmed &amp; Deaths
+							</label>
+							<label for="display_confirmed" class="radio">
+								<input id="display_confirmed" type="radio" name="display" value="confirmed">
+								Confirmed
+							</label>
+							<label for="display_death" class="radio">
+								<input id="display_death" type="radio" name="display" value="deaths">
+								Deaths
+							</label>
 						</div>
 					</div>
 				</div>
