@@ -29,12 +29,6 @@
 						google.charts.setOnLoadCallback( drawChart );
 					});
 				}
-				function getDisplay() {
-					var el = document.getElementsByName('display');
-					for (var i=0;i<el.length;i++) {
-						if (el[i].checked) return el[i].value;
-					}
-				}
 				function drawChart() {
 					var rows = [];
 					var cu = document.getElementById('country').value;
@@ -42,7 +36,7 @@
 					var lastConfirmed = 0;
 					var lastDeaths = 0;
 					var lastRecovered = 0;
-					var display = getDisplay();
+					var display = document.getElementById('display').value;;
 					for (var i=0;i<data[cu].length;i++) {
 						const {date, confirmed, recovered, deaths} = data[cu][i];
 						var totalConfirmed = (daily) ? confirmed - lastConfirmed : confirmed;
@@ -83,10 +77,7 @@
 					getData();
 					document.getElementById('country').addEventListener('change', drawChart);
 					document.getElementById('total').addEventListener('change', drawChart);
-					var d = document.getElementsByName('display');
-					for (var i=0;i<d.length;i++) {
-						d[i].addEventListener('change', drawChart);
-					}
+					document.getElementById('display').addEventListener('change', drawChart);
 				});
 			})();
 		</script>
@@ -106,19 +97,12 @@
 								<option value="1">Show Daily Totals</option>
 							</select>
 						</div>
-						<div class="control">
-							<label for="display_both" class="radio">
-								<input id="display_both" type="radio" name="display" value="both" checked>
-								Confirmed &amp; Deaths
-							</label>
-							<label for="display_confirmed" class="radio">
-								<input id="display_confirmed" type="radio" name="display" value="confirmed">
-								Confirmed
-							</label>
-							<label for="display_death" class="radio">
-								<input id="display_death" type="radio" name="display" value="deaths">
-								Deaths
-							</label>
+						<div class="select is-large">
+							<select id="display" name="display">
+								<option value="both">Confirmed &amp; Deaths</option>
+								<option value="confirmed">Confirmed</option>
+								<option value="deaths">Deaths</option>
+							</select>
 						</div>
 					</div>
 				</div>
